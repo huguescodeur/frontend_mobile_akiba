@@ -12,6 +12,7 @@ import 'package:akiba/models/auth_models/verify_phone_response.dart';
 import 'package:akiba/models/auth_status_model.dart';
 import 'package:akiba/models/auth_tokens_model.dart';
 import 'package:akiba/services/api_service.dart';
+import 'package:akiba/services/user_service/user_service.dart';
 import 'package:akiba/views/auth/register/verify_number_view.dart';
 import 'package:akiba/views/home/accueil_view.dart';
 import 'package:akiba/views/home/verify_pin_view.dart';
@@ -19,10 +20,10 @@ import 'package:akiba/widgets/components/show_custom_snack_bar.dart';
 import 'package:akiba/widgets/navigation/navigate_with_transition.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 
-import 'dart:convert';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -127,6 +128,7 @@ class AuthService {
     required String phoneNumber,
     required String verificationCode,
     required BuildContext context,
+    required WidgetRef ref,
   }) async {
     try {
       final response = await _apiService.verifyPhone(
@@ -154,6 +156,15 @@ class AuthService {
 
         // Configurer l'en-tête d'autorisation
         _apiService.setAuthToken(verifyResponse.tokens!.accessToken);
+
+        // try {
+        //   await ref.read(userProvider.notifier).loadUserProfile();
+        //   log('✅ Profil chargé dans le provider après vérify phone');
+        // } catch (e) {
+        //   log(
+        //     '⚠️ Erreur chargement profil dans provider après vérify phone: $e',
+        //   );
+        // }
 
         return true;
       } else {
@@ -186,10 +197,10 @@ class AuthService {
       return false;
     }
 
-    if (pinCode.length != 4 || !pinCode.contains(RegExp(r'^\d+$'))) {
+    if (pinCode.length != 5 || !pinCode.contains(RegExp(r'^\d+$'))) {
       showCustomSnackBar(
         context,
-        message: "Le code PIN doit contenir exactement 4 chiffres",
+        message: "Le code PIN doit contenir exactement 5 chiffres",
         isError: true,
       );
       return false;
@@ -232,6 +243,7 @@ class AuthService {
   Future<bool> verifyPin({
     required String pinCode,
     required BuildContext context,
+    required WidgetRef ref,
   }) async {
     try {
       final token = await getAccessToken();
@@ -241,6 +253,12 @@ class AuthService {
       final apiResponse = ApiResponseModel.fromJson(response);
 
       if (apiResponse.success) {
+        // try {
+        //   await ref.read(userProvider.notifier).loadUserProfile();
+        //   log('✅ Profil chargé dans le provider après vérify pin');
+        // } catch (e) {
+        //   log('⚠️ Erreur chargement profil dans provider après vérify pin: $e');
+        // }
         return true;
       } else {
         showCustomSnackBar(
@@ -294,6 +312,7 @@ class AuthService {
     required String password,
     required String selectedCountryCode,
     required BuildContext context,
+    required WidgetRef ref,
   }) async {
     if (completeMobileNumber.isEmpty || password.isEmpty) {
       showCustomSnackBar(
@@ -320,6 +339,7 @@ class AuthService {
     }
 
     try {
+      log("Début Login Lancement");
       final response = await _apiService.login(
         phoneNumber: completeMobileNumber,
         password: password,
@@ -333,6 +353,14 @@ class AuthService {
         _apiService.setAuthToken(loginResponse.tokens!.accessToken);
 
         log("Login Response: $loginResponse");
+
+        // try {
+        //   await ref.read(userProvider.notifier).loadUserProfile();
+        //   log('✅ Profil chargé dans le provider après connexion');
+        // } catch (e) {
+        //   log('⚠️ Erreur chargement profil dans provider: $e');
+        // }
+
         navigateWithTransition(
           // page: const AccueilView(),
           context: context,
@@ -341,7 +369,7 @@ class AuthService {
           replace: true,
         );
 
-        // return loginResponse;
+        return loginResponse;
       } else {
         showCustomSnackBar(
           context,
@@ -454,77 +482,6 @@ class AuthService {
       return null;
     }
   }
-
-  // Future<bool> refreshAuthToken() async {
-  //   // ⭐ Éviter les appels récursifs
-  //   if (isRefreshing) {
-  //     log('⚠️ Refresh déjà en cours, abandon');
-  //     return false;
-  //   }
-
-  //   isRefreshing = true;
-
-  //   try {
-  //     final refreshToken = await getRefreshToken();
-
-  //     if (refreshToken == null || refreshToken.isEmpty) {
-  //       log("❌ Aucun refresh token. L'utilisateur doit se reconnecter.");
-  //       return false;
-  //     }
-
-  //     // ⭐ Vérifier si le refresh token n'est pas expiré avant de l'utiliser
-  //     if (isTokenExpired(refreshToken)) {
-  //       log("❌ Refresh token expiré. L'utilisateur doit se reconnecter.");
-  //       await clearTokens();
-  //       return false;
-  //     }
-
-  //     log('🔄 Tentative de refresh du token...');
-
-  //     // ⭐ SOLUTION : Utiliser une instance Dio séparée SANS intercepteur
-  //     final refreshDio = Dio();
-  //     refreshDio.options = BaseOptions(
-  //       baseUrl: ApiService.baseUrl, // Utilisez votre baseUrl
-  //       connectTimeout: const Duration(seconds: 30),
-  //       receiveTimeout: const Duration(seconds: 30),
-  //       sendTimeout: const Duration(seconds: 30),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Accept': 'application/json',
-  //       },
-  //     );
-
-  //     final response = await refreshDio.post(
-  //       '/accounts/token/refresh/',
-  //       data: {'refresh': refreshToken},
-  //     );
-
-  //     final newAccessToken = response.data['access'];
-
-  //     if (newAccessToken != null && newAccessToken.isNotEmpty) {
-  //       await storage.write(key: 'access_token', value: newAccessToken);
-  //       _apiService.setAuthToken(newAccessToken);
-  //       log("✅ Token renouvelé avec succès !");
-  //       return true;
-  //     } else {
-  //       log("❌ Réponse invalide lors du refresh");
-  //       await clearTokens();
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     log("❌ Erreur lors du rafraîchissement du token: $e");
-
-  //     // ⭐ Si c'est une erreur 401, le refresh token est invalide
-  //     if (e is DioException && e.response?.statusCode == 401) {
-  //       log("❌ Refresh token blacklisté ou invalide - déconnexion forcée");
-  //       await clearTokens();
-  //     }
-
-  //     return false;
-  //   } finally {
-  //     isRefreshing = false; // ⭐ Toujours remettre le flag à false
-  //   }
-  // }
 
   Future<bool> refreshAuthToken() async {
     if (isRefreshing) {
@@ -655,7 +612,7 @@ class AuthService {
     await clearTokens();
   }
 
-  Future<AuthStatusModel> checkAuthStatus() async {
+  Future<AuthStatusModel> checkAuthStatus({bool forceRefresh = false}) async {
     log('🔍 Début vérification statut auth');
 
     try {
@@ -786,6 +743,24 @@ class AuthService {
       if (refreshToken != null) {
         log('Refresh expired: ${isTokenExpired(refreshToken)}');
       }
+    }
+  }
+
+  Future<void> loadUserProfileAfterAuth() async {
+    try {
+      // Cette méthode sera appelée après une connexion réussie
+      // pour charger immédiatement le profil utilisateur
+      log('🔄 Chargement du profil après authentification...');
+
+      final userService = UserService();
+      final profileResponse = await userService.getUserProfile();
+
+      if (profileResponse != null && profileResponse.success) {
+        log('✅ Profil chargé après auth: ${profileResponse.user.fullName}');
+        // Vous pouvez déclencher un événement ou utiliser un callback ici
+      }
+    } catch (e) {
+      log('❌ Erreur chargement profil après auth: $e');
     }
   }
 

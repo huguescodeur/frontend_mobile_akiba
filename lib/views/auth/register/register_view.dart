@@ -6,6 +6,7 @@ import 'package:akiba/constants/app_colors.dart';
 import 'package:akiba/constants/images.dart';
 import 'package:akiba/enum/transition_direction.dart';
 import 'package:akiba/services/auth_service/auth_service.dart';
+import 'package:akiba/utils/lifecycle_handler.dart';
 import 'package:akiba/views/auth/login/login_view.dart';
 import 'package:akiba/widgets/components/custom_button.dart';
 import 'package:akiba/widgets/components/custom_text_field.dart';
@@ -61,6 +62,19 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
         });
       }
     }
+  }
+
+  // Au début de votre RegisterView
+  @override
+  void initState() {
+    super.initState();
+    LifecycleHandler.isInRegistrationFlow = true;
+  }
+
+  @override
+  void dispose() {
+    LifecycleHandler.isInRegistrationFlow = false;
+    super.dispose();
   }
 
   @override

@@ -4,26 +4,28 @@ import 'package:akiba/constants/app_colors.dart';
 import 'package:akiba/constants/images.dart';
 import 'package:akiba/enum/transition_direction.dart';
 import 'package:akiba/services/auth_service/auth_service.dart';
+import 'package:akiba/utils/lifecycle_handler.dart';
 import 'package:akiba/views/auth/register/register_view.dart';
 import 'package:akiba/widgets/components/custom_button.dart';
 import 'package:akiba/widgets/components/custom_text_field.dart';
 import 'package:akiba/widgets/navigation/navigate_with_transition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:intl_mobile_field/country_picker_dialog.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 
-class LoginView extends StatefulWidget {
+class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
 
   static const String idView = "loginview";
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  ConsumerState<LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _LoginViewState extends ConsumerState<LoginView> {
   final emailController = TextEditingController();
 
   final passwordController = TextEditingController();
@@ -36,7 +38,7 @@ class _LoginViewState extends State<LoginView> {
 
   AuthService authService = AuthService();
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleLogin({required WidgetRef ref}) async {
     setState(() {
       isLoading = true;
     });
@@ -47,6 +49,7 @@ class _LoginViewState extends State<LoginView> {
         selectedCountryCode: selectedCountryCode,
         password: passwordController.text,
         context: context,
+        ref: ref,
       );
     } finally {
       if (mounted) {
@@ -55,6 +58,19 @@ class _LoginViewState extends State<LoginView> {
         });
       }
     }
+  }
+
+  // Au début de votre RegisterView
+  @override
+  void initState() {
+    super.initState();
+    LifecycleHandler.isInLoginFlow = true;
+  }
+
+  @override
+  void dispose() {
+    LifecycleHandler.isInLoginFlow = false;
+    super.dispose();
   }
 
   @override
@@ -202,7 +218,7 @@ class _LoginViewState extends State<LoginView> {
                     )
                     : CustomButton(
                       label: "Se connecter",
-                      onPressed: _handleLogin,
+                      onPressed: () => _handleLogin(ref: ref),
                     ),
                 Gap(16),
                 Row(

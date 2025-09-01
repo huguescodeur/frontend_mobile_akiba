@@ -3,24 +3,30 @@ import 'dart:developer';
 import 'package:akiba/constants/app_colors.dart';
 import 'package:akiba/enum/transition_direction.dart';
 import 'package:akiba/services/auth_service/auth_service.dart';
+import 'package:akiba/utils/lifecycle_handler.dart';
+import 'package:akiba/viewmodels/user_view_model/user_provider.dart';
+import 'package:akiba/viewmodels/wallet_view_model/wallet_provider.dart';
 import 'package:akiba/views/home/accueil_view.dart';
+import 'package:akiba/views/home/home_view.dart';
+import 'package:akiba/views/home/main_view.dart';
 import 'package:akiba/widgets/components/arrow_back.dart';
 import 'package:akiba/widgets/components/show_custom_snack_bar.dart';
 import 'package:akiba/widgets/components/show_success_dialog.dart';
 import 'package:akiba/widgets/navigation/navigate_with_transition.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-class CreatePinView extends StatefulWidget {
+class CreatePinView extends ConsumerStatefulWidget {
   const CreatePinView({super.key});
 
   static const String idView = "createpinview";
 
   @override
-  State<CreatePinView> createState() => _CreatePinViewState();
+  ConsumerState<CreatePinView> createState() => _CreatePinViewState();
 }
 
-class _CreatePinViewState extends State<CreatePinView> {
+class _CreatePinViewState extends ConsumerState<CreatePinView> {
   String pin = '';
   String confirmPin = '';
   bool isConfirmingPin = false;
@@ -34,9 +40,9 @@ class _CreatePinViewState extends State<CreatePinView> {
 
     setState(() {
       if (!isConfirmingPin) {
-        if (pin.length < 4) {
+        if (pin.length < 5) {
           pin += number;
-          if (pin.length == 4) {
+          if (pin.length == 5) {
             Future.delayed(const Duration(milliseconds: 300), () {
               setState(() {
                 isConfirmingPin = true;
@@ -45,9 +51,9 @@ class _CreatePinViewState extends State<CreatePinView> {
           }
         }
       } else {
-        if (confirmPin.length < 4) {
+        if (confirmPin.length < 5) {
           confirmPin += number;
-          if (confirmPin.length == 4) {
+          if (confirmPin.length == 5) {
             _verifyPins();
           }
         }
@@ -174,7 +180,8 @@ class _CreatePinViewState extends State<CreatePinView> {
 
                       navigateWithTransition(
                         context: context,
-                        page: const AccueilView(), // ou votre page principale
+                        // page: const HomeView(),
+                        page: const MainView(),
                         direction: TransitionDirection.rightToLeft,
                         replace: true,
                       );
@@ -201,6 +208,29 @@ class _CreatePinViewState extends State<CreatePinView> {
             ),
           ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    LifecycleHandler.isInRegistrationFlow = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(walletProvider.notifier).loadWalletData();
+      ref.read(userProvider.notifier).loadUserProfile();
+    });
+    // Future.microtask(() {
+    //   final notifier = ref.read(userProvider.notifier);
+    //   if (!notifier.isUserLoaded && !ref.read(userProvider).isLoading) {
+    //     notifier.loadUserProfile();
+    //   }
+    // });
+  }
+
+  @override
+  void dispose() {
+    LifecycleHandler.isInRegistrationFlow = false;
+    super.dispose();
   }
 
   @override
@@ -270,7 +300,7 @@ class _CreatePinViewState extends State<CreatePinView> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(4, (index) {
+                    children: List.generate(5, (index) {
                       bool isFilled = index < currentPin.length;
                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 8),

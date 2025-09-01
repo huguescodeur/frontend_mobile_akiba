@@ -13,6 +13,8 @@ import 'package:akiba/utils/app_utils.dart';
 import 'package:akiba/views/auth/login/login_view.dart';
 import 'package:akiba/views/auth/register/create_pin_view.dart';
 import 'package:akiba/views/home/accueil_view.dart';
+import 'package:akiba/views/home/home_view.dart';
+import 'package:akiba/views/home/main_view.dart';
 import 'package:akiba/views/home/onboarding_view.dart';
 import 'package:akiba/views/home/verify_pin_view.dart';
 import 'package:akiba/widgets/navigation/navigate_with_transition.dart';
@@ -106,7 +108,8 @@ class _SplashViewState extends State<SplashView>
         !status.requiredPinAuth) {
       navigateWithTransition(
         context: context,
-        page: const AccueilView(),
+        // page: const HomeView(),
+        page: const MainView(),
         direction: TransitionDirection.rightToLeft,
         replace: true,
       );
@@ -207,7 +210,7 @@ class _SplashViewState extends State<SplashView>
 
                         // Nom de l'app
                         const Text(
-                          'Akiba+',
+                          'Sanek',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -220,7 +223,7 @@ class _SplashViewState extends State<SplashView>
 
                         // Slogan
                         Text(
-                          'Économisez . Progressez . Réussissez ',
+                          'Gérez . Défiez . Réussissez ',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.white.withOpacity(0.9),

@@ -5,23 +5,14 @@ import 'package:akiba/utils/token_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+// static const String baseUrl =
+//     'https://trusty-awaited-chow.ngrok-free.app/api';
 class ApiService {
-  static const String baseUrl =
-      'https://trusty-awaited-chow.ngrok-free.app/api';
-  // static const String baseUrl = 'http://192.168.101.253:8000/api';
+  static const String baseUrl = 'http://192.168.29.253:8000/api';
 
   final Dio _dio = Dio();
 
   ApiService() {
-    // _dio.interceptors.add(
-    //   InterceptorsWrapper(
-    //     onRequest: (options, handler) {
-    //       options.headers['ngrok-skip-browser-warning'] = 'true';
-    //       options.headers['User-Agent'] = 'AkibaApp/1.0';
-    //       handler.next(options);
-    //     },
-    //   ),
-    // );
     _dio.options = BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 30),
@@ -149,6 +140,7 @@ class ApiService {
     required String phoneNumber,
     required String password,
   }) async {
+    log("Request api login");
     return await post('/accounts/login/', {
       'phone_number': phoneNumber,
       'password': password,
@@ -156,7 +148,8 @@ class ApiService {
   }
 
   // Profil utilisateur
-  Future<Map<String, dynamic>> getUserProfile() async {
+  Future<Map<String, dynamic>> getUserProfile({required String token}) async {
+    setAuthToken(token);
     return await get('/accounts/profile/');
   }
 
@@ -253,3 +246,14 @@ class ApiService {
     }
   }
 }
+
+
+// _dio.interceptors.add(
+    //   InterceptorsWrapper(
+    //     onRequest: (options, handler) {
+    //       options.headers['ngrok-skip-browser-warning'] = 'true';
+    //       options.headers['User-Agent'] = 'AkibaApp/1.0';
+    //       handler.next(options);
+    //     },
+    //   ),
+    // );
