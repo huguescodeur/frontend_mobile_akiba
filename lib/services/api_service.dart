@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 // static const String baseUrl =
 //     'https://trusty-awaited-chow.ngrok-free.app/api';
 class ApiService {
-  static const String baseUrl = 'http://192.168.29.253:8000/api';
+  static const String baseUrl = 'http://10.97.236.253:8000/api';
 
   final Dio _dio = Dio();
 

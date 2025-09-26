@@ -220,6 +220,8 @@ class WalletService {
         if (message != null) 'message': message,
       });
 
+      log("Response Make Transfert: $response");
+
       return WalletResponseModel.fromJson(response);
     } catch (e) {
       log('❌ Erreur makeTransfer: $e');

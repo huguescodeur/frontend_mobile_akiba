@@ -4,8 +4,8 @@ class AppColors {
   //? 🌞 Mode Clair
 
   // static const Color primaryLight = Color(0xFF35E167);
-  static const Color primaryLight = Color(0xFF0052CC);
   // static const Color primaryLight = Color(0xFF3B82F6);
+  static const Color primaryLight = Color(0xFF0052CC);
   static const Color secondaryLight = Color(0xFF010101);
   static const Color accentLight = Color(0xFFF9D849);
   static const Color backgroundLight = Color(0xFFF9FAFB);

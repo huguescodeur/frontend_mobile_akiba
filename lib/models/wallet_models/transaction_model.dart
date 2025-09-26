@@ -56,7 +56,6 @@ class TransactionModel {
     };
   }
 
-  // String get formattedAmount => '${amount.toStringAsFixed(2)} FCFA';
   String get formattedAmount => '${amount.toStringAsFixed(0)} CFA';
 
   String getDisplayTitle(String currentUserId) {

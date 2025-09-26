@@ -83,7 +83,8 @@ class WalletState {
   int get transactionCount => transactions.length;
 
   List<TransactionModel> get recentTransactions =>
-      transactions.take(5).toList();
+      transactions.take(10).toList();
+  List<TransactionModel> get allTransactions => transactions.toList();
 
   List<TransactionModel> get incomingTransactions =>
       transactions.where((t) => t.isIncoming).toList();

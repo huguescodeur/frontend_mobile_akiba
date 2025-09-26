@@ -11,9 +11,12 @@ import 'package:akiba/views/auth/login/login_view.dart';
 import 'package:akiba/views/challenge/challenge_details_view.dart';
 import 'package:akiba/views/notifications/notifications_view.dart';
 import 'package:akiba/views/settings/settings_view.dart';
+import 'package:akiba/views/transactions/deposit_view.dart';
+import 'package:akiba/views/transactions/transaction_detail_view.dart';
 import 'package:akiba/views/transactions/transactions_view.dart';
 import 'package:akiba/views/vault/vault_view.dart';
 import 'package:akiba/widgets/components/accueil_components/build_quick_actions.dart';
+import 'package:akiba/widgets/components/build_transaction_item.dart';
 import 'package:akiba/widgets/navigation/navigate_with_transition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -219,23 +222,80 @@ class _AccueilViewState extends ConsumerState<AccueilView> {
             ],
           ),
           SizedBox(height: 8),
-          Text(
-            _isBalanceVisible ? formattedBalance : '•••••',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            'CFA',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
-              fontSize: 16,
-            ),
-          ),
-          SizedBox(height: 16),
+
+          // SOLDE AVEC BOUTON DÉPÔT À CÔTÉ
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // SOLDE
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _isBalanceVisible ? formattedBalance : '•••••',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'CFA',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // BOUTON DÉPÔT INTÉGRÉ
+              GestureDetector(
+                onTap:
+                    () => navigateWithTransition(
+                      context: context,
+                      page: DepositView(),
+                      direction: TransitionDirection.rightToLeft,
+                    ),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    // color: const Color.fromARGB(255, 45, 45, 45),
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Iconsax.add_circle, color: Colors.white, size: 18),
+                      SizedBox(width: 6),
+                      Text(
+                        "Déposer de l'argent",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 16),
+
+          // INFORMATIONS D'ÉPARGNE
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildBalanceInfo(
                 'Épargné ce mois',
@@ -250,6 +310,85 @@ class _AccueilViewState extends ConsumerState<AccueilView> {
       ),
     );
   }
+
+  // Widget _buildBalanceCard({required String formattedBalance}) {
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: EdgeInsets.all(24),
+  //     decoration: BoxDecoration(
+  //       gradient: LinearGradient(
+  //         colors: [AppColors.primaryLight, Color(0xFF0066FF)],
+  //         begin: Alignment.topLeft,
+  //         end: Alignment.bottomRight,
+  //       ),
+  //       borderRadius: BorderRadius.circular(20),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: AppColors.primaryLight.withOpacity(0.3),
+  //           blurRadius: 20,
+  //           offset: Offset(0, 10),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //           children: [
+  //             Text(
+  //               'Solde Principal',
+  //               style: TextStyle(
+  //                 color: Colors.white.withOpacity(0.8),
+  //                 fontSize: 14,
+  //               ),
+  //             ),
+  //             GestureDetector(
+  //               onTap: () {
+  //                 setState(() {
+  //                   _isBalanceVisible = !_isBalanceVisible;
+  //                 });
+  //               },
+  //               child: Icon(
+  //                 _isBalanceVisible ? Iconsax.eye : Iconsax.eye_slash,
+  //                 color: Colors.white,
+  //                 size: 20,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         SizedBox(height: 8),
+  //         Text(
+  //           _isBalanceVisible ? formattedBalance : '•••••',
+  //           style: TextStyle(
+  //             color: Colors.white,
+  //             fontSize: 30,
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //         ),
+  //         Text(
+  //           'CFA',
+  //           style: TextStyle(
+  //             color: Colors.white.withOpacity(0.8),
+  //             fontSize: 16,
+  //           ),
+  //         ),
+  //         SizedBox(height: 16),
+  //         Row(
+  //           children: [
+  //             _buildBalanceInfo(
+  //               'Épargné ce mois',
+  //               '15 420 CFA',
+  //               Iconsax.trend_up,
+  //             ),
+  //             SizedBox(width: 24),
+  //             _buildBalanceInfo('Objectif atteint', '75%', Iconsax.activity),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildBalanceInfo(String label, String value, IconData icon) {
     return Row(
@@ -646,87 +785,96 @@ class _AccueilViewState extends ConsumerState<AccueilView> {
             ),
           )
         else
-          ...recentTransactions
-              .take(5)
-              .map(
-                (transaction) => _buildTransactionItem(
-                  // transaction.displayTitle,
-                  transaction.getDisplayTitle(currentUserId),
-                  transaction.getFormattedAmountForUser(currentUserId),
-                  transaction.createdAt.toString().substring(0, 19),
-                  transaction.transactionIcon,
-                  transaction.transactionColor,
-                ),
+          ...recentTransactions.map(
+            (transaction) => InkWell(
+              onTap:
+                  () => navigateWithTransition(
+                    context: context,
+                    page: TransactionDetailView(
+                      transaction: transaction,
+                      currentUserId: currentUserId,
+                    ),
+                  ),
+
+              child: buildTransactionItem(
+                // transaction.displayTitle,
+                transaction.getDisplayTitle(currentUserId),
+                transaction.getFormattedAmountForUser(currentUserId),
+                transaction.createdAt.toString().substring(0, 19),
+                transaction.transactionIcon,
+                transaction.transactionColor,
               ),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildTransactionItem(
-    String title,
-    String amount,
-    String date,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: AppColors.textLight,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  date,
-                  style: TextStyle(
-                    color: AppColors.textSecondaryLight,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            amount,
-            style: TextStyle(
-              color:
-                  amount.startsWith('+') ? AppColors.success : AppColors.error,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildTransactionItem(
+  //   String title,
+  //   String amount,
+  //   String date,
+  //   IconData icon,
+  //   Color color,
+  // ) {
+  //   return Container(
+  //     margin: EdgeInsets.only(bottom: 12),
+  //     padding: EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.05),
+  //           blurRadius: 10,
+  //           offset: Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           padding: EdgeInsets.all(8),
+  //           decoration: BoxDecoration(
+  //             color: color.withOpacity(0.1),
+  //             borderRadius: BorderRadius.circular(8),
+  //           ),
+  //           child: Icon(icon, color: color, size: 20),
+  //         ),
+  //         SizedBox(width: 12),
+  //         Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 title,
+  //                 style: TextStyle(
+  //                   color: AppColors.textLight,
+  //                   fontSize: 14,
+  //                   fontWeight: FontWeight.w500,
+  //                 ),
+  //               ),
+  //               Text(
+  //                 date,
+  //                 style: TextStyle(
+  //                   color: AppColors.textSecondaryLight,
+  //                   fontSize: 12,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         Text(
+  //           amount,
+  //           style: TextStyle(
+  //             color:
+  //                 amount.startsWith('+') ? AppColors.success : AppColors.error,
+  //             fontSize: 14,
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }

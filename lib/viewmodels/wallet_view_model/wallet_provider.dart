@@ -23,6 +23,10 @@ final recentTransactionsProvider = Provider<List<TransactionModel>>((ref) {
   return ref.watch(walletProvider).recentTransactions;
 });
 
+final allTransactionsProvider = Provider<List<TransactionModel>>((ref) {
+  return ref.watch(walletProvider).allTransactions;
+});
+
 final walletConnectionStatusProvider = Provider<bool>((ref) {
   return ref.watch(walletProvider).isConnected;
 });
